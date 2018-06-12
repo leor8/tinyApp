@@ -54,9 +54,8 @@ app.listen(PORT, function (){
 
 
 function generateRandomString(){
-  console.log(Math.random().toString(36).substring(6));
+  return Math.random().toString(36).substring(6);
 }
-generateRandomString();
 
 
 
