@@ -15,6 +15,8 @@ var urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+app.set("view engine", "ejs");
+
 app.get("/", function (req, res){
   res.end("Hello!");
 });
