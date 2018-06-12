@@ -2,15 +2,23 @@
 
 <html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TinyApp</title>
 </head>
 
 <body>
     <!-- Add your EJS code here -->
+    <h2> Links you are trying to shorten </h2>
     <ul>
-      <% for(var i in templateVars){ %>
-        <li><%= templateVars[i] %></li>
+      <% for(var i in urls){ %>
+          <li><%= urls[i] %></li>
       <% } %>
+    </ul>
+
+    <h2> Shortened links </h2>
+    <ul>
+     <li><a href="google.ca">a.b.c</a></li>
     </ul>
 </body>
 </html>
