@@ -6,10 +6,13 @@
 */
 
 //Requiring the express lib and setting up the port number
-var express = require("express");
+const express = require("express");
 const bodyParser = require("body-parser");
-var app = express();
-var PORT = 8080;
+const app = express();
+const PORT = 8080;
+
+// variables
+let uid = "";
 
 // Database for saving all unique id with the corresponding link
 var urlDatabase = {
@@ -37,20 +40,29 @@ app.get("/urls/new", function (req, res){
   res.render("urls_new");
 });
 
-// get url typed in the link
-app.get("/urls/:id", function (req, res){
-  let templateVars = { shortURL: req.params.id };
-  res.render("urls_show", templateVars);
+//// get url typed in the link
+// app.get("/urls/:id", function (req, res){
+//   let templateVars = { shortURL: req.params.id };
+//   res.render("urls_show", templateVars);
+// });
+
+app.get("/urls/:shortURL", function (req, res){
+  let shortURL = req.params.shortURL
+  console.log(shortURL, uid);
+  let longURL = urlDatabase[shortURL];
+  console.log(`The long URL is ${longURL}`);
+  res.redirect(longURL);
 });
 
 // PUT url received from /urls/new
 app.post("/urls", function (req, res){
-  var uid = generateRandomString();
+  uid = generateRandomString();
   urlDatabase[uid] = req.body.longURL;
-  res.send(urlDatabase[uid]);
+  //res.redirect(urlDatabase[uid]);
+  res.redirect(`http://localhost:${PORT}/urls/${uid}`);
 });
 
-
+// Even handler
 app.listen(PORT, function (){
   console.log(`Example app listening on port ${PORT}!`);
 });
@@ -62,6 +74,7 @@ app.listen(PORT, function (){
 
 
 function generateRandomString(){
+  // this function returns a random 6 digits string with random number + a to z
   return Math.random().toString(36).substring(6);
 }
 
