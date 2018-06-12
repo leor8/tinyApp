@@ -5,7 +5,7 @@
   2018/06/21
 */
 
-// Requiring the express lib and setting up the port number
+//Requiring the express lib and setting up the port number
 var express = require("express");
 const bodyParser = require("body-parser");
 var app = express();
@@ -17,7 +17,7 @@ var urlDatabase = {
 };
 
 app.set("view engine", "ejs");
-//app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", function (req, res){
   res.end("Hello!");
@@ -48,10 +48,15 @@ app.listen(PORT, function (){
 });
 
 
+/*
+  FUNCTIONS
+*/
 
 
-
-
+function generateRandomString(){
+  console.log(Math.random().toString(36).substring(6));
+}
+generateRandomString();
 
 
 
