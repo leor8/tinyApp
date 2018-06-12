@@ -17,7 +17,7 @@ var urlDatabase = {
 };
 
 app.set("view engine", "ejs");
-app.use(bodyParser.urlencoded({ extended: true }));
+//app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", function (req, res){
   res.end("Hello!");
@@ -35,6 +35,11 @@ app.get("/urls/new", function (req, res){
 app.get("/urls/:id", function (req, res){
   let templateVars = { shortURL: req.params.id };
   res.render("urls_show", templateVars);
+});
+
+app.post("/urls", function (req, res){
+  console.log(req.body);
+  res.send("Ok");
 });
 
 
