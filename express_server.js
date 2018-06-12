@@ -25,14 +25,11 @@ app.get("/urls", function (req, res){
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
-app.get("/urls.json", function (req, res){
-  res.json(urlDatabase);
-});
 
-app.get("/hello", function (req, res){
-  res.end("<html><body>Hello <b>World</b></body></html>\n");
+app.get("/urls/:id", function (req, res){
+  let templateVars = { shortURL: req.params.id };
+  res.render("urls_show", templateVars);
 });
-
 
 app.listen(PORT, function (){
   console.log(`Example app listening on port ${PORT}!`);
