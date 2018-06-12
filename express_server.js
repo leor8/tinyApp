@@ -21,6 +21,10 @@ app.get("/", function (req, res){
   res.end("Hello!");
 });
 
+app.get("/urls", function (req, res){
+  let templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars);
+});
 app.get("/urls.json", function (req, res){
   res.json(urlDatabase);
 });
