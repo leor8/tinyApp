@@ -8,19 +8,16 @@
 </head>
 
 <body>
+    <% include partials/_header %>
     <!-- Add your EJS code here -->
-    <h2> Links you are trying to shorten </h2>
-    <ul>
-      <% for(var i in urls){ %>
-          <li><%= urls[i] %></li>
-      <% } %>
-    </ul>
+    <h2> Database </h2>
+    <% for(var i in urls){ %>
+    <form method="POST" action="/urls/9sm5xK/delete">
+        <p><%= [i] %> --> <%= urls[i] %></p>
+        <button type="bytton">Delete</button>
+    </form>
+    <% } %>
 
-    <h2> Shortened links </h2>
-    <ul>
-     <li><a href="google.ca">a.b.c</a></li>
-    </ul>
 
-    <%- include _header.ejs %>
 </body>
 </html>
