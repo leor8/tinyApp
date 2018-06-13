@@ -35,19 +35,18 @@ app.get("/", function (req, res){
 // Rendering the database page (urls_index.ejs) with current database
 app.get("/urls", function (req, res){
   let templateVars = { urls: urlDatabase,
-                      username: req.cookies["username"]};
+                      username: req.cookies["cookies"]};
   res.render("urls_index", templateVars);
 });
 
 // Rendering the page getting new url from user via input field
 app.get("/urls/new", function (req, res){
   let templateVars = { username: req.cookies["cookies"] };
-  console.log(req.cookies);
   res.render("urls_new", templateVars);
 });
 
 app.get("/login", function (req, res){
-  let templateVars = { username: req.cookies["username"] };
+  let templateVars = { username: req.cookies["cookies"] };
   res.render("partials/_header", templateVars);
 });
 
@@ -57,7 +56,7 @@ app.get("/login", function (req, res){
 app.get("/urls/:id", function (req, res){
   let templateVars = { shortURL: req.params.id,
                       longURL: urlDatabase[req.params.id],
-                      username: req.cookies["username"]};
+                      username: req.cookies["cookies"]};
   res.render("urls_show", templateVars);
 });
 
@@ -94,12 +93,12 @@ app.post("/urls/update/:id", function (req, res){
 app.post("/login", function (req, res){
   //console.log(req.body === object);
   res.cookie("cookies", req.body['username']);
-  res.redirect("/urls/new");
+  res.redirect("/urls/b2xVn2");
 });
 
 app.post("/logout", function (req, res){
   res.clearCookie("cookies");
-  redirect("/login");
+  res.redirect("/login");
 });
 
 // Even handler

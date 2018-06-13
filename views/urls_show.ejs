@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
   <head></head>
-  <body style="font-size:20px; padding:50px;">
+  <body>
     <% include partials/_header %>
-    <form action="/urls/update/<%= shortURL %>" method="POST" style="margin:150px;">
-      <label for="longURL">ShortURL: <%= shortURL %></label>
-      <input id="longURL" type="text" name="longURL" placeholder="<%= longURL%>" style="width: 300px">
-      <input type="submit" value="Update">
-    </form>
+    <div style="font-size:20px; padding:50px;">
+      <form action="/urls/update/<%= shortURL %>" method="POST" style="margin:150px;">
+        <label for="longURL">ShortURL: <%= shortURL %></br></label>
+        <input id="longURL" type="text" name="longURL" placeholder="<%= longURL%>" style="width: 300px">
+        <input type="submit" value="Update">
+      </form>
+    </div>>
   </body>
 </html>

@@ -1,24 +1,23 @@
 <!DOCTYPE html>
 
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TinyApp</title>
-</head>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyApp</title>
+  </head>
 
-<body>
-    <% include partials/_header %>
+  <body>
     <!-- Add your EJS code here -->
+    <% include partials/_header %>
+
     <h2> Database </h2>
-    <% for(var i in urls){ %>
-      <form method="POST" action="/urls/<%=i%>/delete">
+      <% for(var i in urls){ %>
+        <form method="POST" action="/urls/<%=i%>/delete">
           <p><%= [i] %> --> <a href="<%= urls[i] %>"><%= urls[i] %></a></p>
           <a href="urls/<%= i %>">Edit</a>
           <button type="submit">Delete</button>
-      </form>
-    <% } %>
-
-
-</body>
+        </form>
+      <% } %>
+  </body>
 </html>
