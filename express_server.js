@@ -17,10 +17,23 @@ let uid = "";
 
 // Database for saving all unique id with the corresponding link
 // Database will be updated if user add/update/delete any elements
-var urlDatabase = {
+let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+let users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+}
 
 // Setting ejs and bodyParser
 app.set("view engine", "ejs");
@@ -68,6 +81,12 @@ app.get("/u/:shortURL", function (req, res){
   res.redirect(longURL);
 });
 
+// This get method returns a page with a form with emal
+// and password
+app.get("/register", function (req, res){
+  res.render("usr_register");
+});
+
 // post url received from /urls/new and redirect to that webpage
 // provided by user and also generate a new id for that hyperlink
 // and save it in the database
@@ -103,6 +122,27 @@ app.post("/login", function (req, res){
 app.post("/logout", function (req, res){
   res.clearCookie("cookies");
   res.redirect("/login");
+});
+
+app.post("/register", function (req, res){
+  // Error Handling
+  if(req.body.email == '' || req.body.password == ''){
+    res.status(400);
+    res.send("Oops! Something went wrong.");
+  }
+  else {
+    for(var eachUser in users){
+      if(users[eachUser].email == req.body.email){
+        res.status(400);
+        res.send("Oops! Something went wrong.");
+      }
+    }
+    let userId = generateRandomString();
+    users[userId] = { id: userId, email:
+                      req.body.email,
+                      password: req.body.password };
+    res.redirect("/register");
+  }
 });
 
 // Even handler
