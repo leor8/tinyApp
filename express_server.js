@@ -43,6 +43,10 @@ app.get("/urls/new", function (req, res){
   res.render("urls_new");
 });
 
+app.get("/login", function (req, res){
+  res.render("partials/_header");
+});
+
 // Rendering updating input request page that allow user to update
 // the correspondant hyperlink to the URL. Accessing this page from
 // urls_index's edit link
@@ -77,6 +81,12 @@ app.post("/urls/:id/delete", function (req, res){
 // database and redirect back to database page with updated database
 app.post("/urls/update/:id", function (req, res){
   urlDatabase[req.params.id] = req.body.longURL;
+  res.redirect("/urls");
+});
+
+// This post handles user id input
+app.post("/login", function (req, res){
+  res.cookie(req.body.username);
   res.redirect("/urls");
 });
 
