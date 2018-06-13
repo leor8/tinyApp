@@ -15,6 +15,7 @@ const PORT = 8080;
 let uid = "";
 
 // Database for saving all unique id with the corresponding link
+// Database will be updated if user add/update/delete any elements
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -29,13 +30,13 @@ app.get("/", function (req, res){
   res.end("Hello!");
 });
 
-// Printing out the database
+// Rendering the database page (urls_index.ejs) with current database
 app.get("/urls", function (req, res){
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
-// getting url input by user
+// Rendering the page getting
 app.get("/urls/new", function (req, res){
   res.render("urls_new");
 });
