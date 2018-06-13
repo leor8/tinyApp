@@ -32,6 +32,10 @@ let users = {
     id: "user2RandomID",
     email: "user2@example.com",
     password: "dishwasher-funk"
+  },
+  "leor": {
+    email: "leo442183205@gmail.com",
+    password: "123456"
   }
 }
 
@@ -60,7 +64,7 @@ app.get("/urls/new", function (req, res){
 
 app.get("/login", function (req, res){
   let templateVars = { usersObject: users };
-  res.render("partials/_header", templateVars);
+  res.render("urls_login", templateVars);
 });
 
 // Rendering updating input request page that allow user to update
@@ -113,8 +117,21 @@ app.post("/urls/update/:id", function (req, res){
 // This post handles user id input that store the id into
 // cookies
 app.post("/login", function (req, res){
-  res.cookie("cookies", req.body['username']);
-  res.redirect("/urls/b2xVn2");
+  var ifExist = false;
+  for(var user in users){
+    if(req.body.email == users[user].email){
+      if(req.body.password == users[user].password){
+        ifExist = true;
+        res.cookie("cookies", users[user].id);
+        res.redirect("/urls");
+      }
+    }
+  }
+
+  if(!ifExist){
+    res.status(403);
+    res.send("Your email address or password does not match the record!");
+  }
 });
 
 // This post is for handling when user logout, and redirect
@@ -145,7 +162,7 @@ app.post("/register", function (req, res){
     users[userId] = { id: userId, email:
                       req.body.email,
                       password: req.body.password };
-    res.redirect("/register");
+    res.redirect("/login");
 
   } else {
     res.status(400);
