@@ -47,9 +47,7 @@ app.get("/urls/new", function (req, res){
 // });
 
 app.get("/urls/:shortURL", function (req, res){
-  let shortURL = req.params.shortURL
-  console.log(shortURL, uid);
-  let longURL = urlDatabase[shortURL];
+  let longURL = urlDatabase[req.params.shortURL];
   console.log(`The long URL is ${longURL}`);
   res.redirect(longURL);
 });
@@ -60,6 +58,11 @@ app.post("/urls", function (req, res){
   urlDatabase[uid] = req.body.longURL;
   //res.redirect(urlDatabase[uid]);
   res.redirect(`http://localhost:${PORT}/urls/${uid}`);
+});
+
+app.post("/urls/:id/delete", function (req, res){
+  delete urlDatabase[req.params.id];
+  res.redirect("/urls");
 });
 
 // Even handler

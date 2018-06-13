@@ -12,10 +12,10 @@
     <!-- Add your EJS code here -->
     <h2> Database </h2>
     <% for(var i in urls){ %>
-    <form method="POST" action="/urls/9sm5xK/delete">
-        <p><%= [i] %> --> <%= urls[i] %></p>
-        <button type="button">Delete</button>
-    </form>
+      <form method="POST" action="/urls/<%=i%>/delete">
+          <p><%= [i] %> --> <%= urls[i] %></p>
+          <button type="submit">Delete</button>
+      </form>
     <% } %>
 
 
