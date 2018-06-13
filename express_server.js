@@ -55,7 +55,6 @@ app.get("/u/:shortURL", function (req, res){
 app.post("/urls", function (req, res){
   uid = generateRandomString();
   urlDatabase[uid] = req.body.longURL;
-  //res.redirect(urlDatabase[uid]);
   res.redirect(`u/${uid}`);
 });
 
@@ -64,8 +63,8 @@ app.post("/urls/:id/delete", function (req, res){
   res.redirect("/urls");
 });
 
-app.post("/urls/update/", function (req, res){
-  console.log(req.body);
+app.post("/urls/update/:id", function (req, res){
+  urlDatabase[req.params.id] = req.body.longURL;
   res.redirect("/urls");
 });
 
