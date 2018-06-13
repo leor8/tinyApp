@@ -29,29 +29,35 @@ app.use(cookieParser());
 
 // Default GET
 app.get("/", function (req, res){
-  res.end("Hello!");
+  res.end("HOME");
 });
 
 // Rendering the database page (urls_index.ejs) with current database
 app.get("/urls", function (req, res){
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { urls: urlDatabase,
+                      username: req.cookies["username"]};
   res.render("urls_index", templateVars);
 });
 
 // Rendering the page getting new url from user via input field
 app.get("/urls/new", function (req, res){
-  res.render("urls_new");
+  let templateVars = { username: req.cookies["cookies"] };
+  console.log(req.cookies);
+  res.render("urls_new", templateVars);
 });
 
 app.get("/login", function (req, res){
-  res.render("partials/_header");
+  let templateVars = { username: req.cookies["username"] };
+  res.render("partials/_header", templateVars);
 });
 
 // Rendering updating input request page that allow user to update
 // the correspondant hyperlink to the URL. Accessing this page from
 // urls_index's edit link
 app.get("/urls/:id", function (req, res){
-  let templateVars = { shortURL: req.params.id, longURL: urlDatabase[req.params.id]};
+  let templateVars = { shortURL: req.params.id,
+                      longURL: urlDatabase[req.params.id],
+                      username: req.cookies["username"]};
   res.render("urls_show", templateVars);
 });
 
@@ -86,8 +92,14 @@ app.post("/urls/update/:id", function (req, res){
 
 // This post handles user id input
 app.post("/login", function (req, res){
-  res.cookie(req.body.username);
-  res.redirect("/urls");
+  //console.log(req.body === object);
+  res.cookie("cookies", req.body['username']);
+  res.redirect("/urls/new");
+});
+
+app.post("/logout", function (req, res){
+  res.clearCookie("cookies");
+  redirect("/login");
 });
 
 // Even handler
