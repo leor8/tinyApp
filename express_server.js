@@ -48,18 +48,18 @@ app.get("/", function (req, res){
 // Rendering the database page (urls_index.ejs) with current database
 app.get("/urls", function (req, res){
   let templateVars = { urls: urlDatabase,
-                      username: req.cookies["cookies"]};
+                      usersObject: users};
   res.render("urls_index", templateVars);
 });
 
 // Rendering the page getting new url from user via input field
 app.get("/urls/new", function (req, res){
-  let templateVars = { username: req.cookies["cookies"] };
+  let templateVars = { usersObject: users };
   res.render("urls_new", templateVars);
 });
 
 app.get("/login", function (req, res){
-  let templateVars = { username: req.cookies["cookies"] };
+  let templateVars = { usersObject: users };
   res.render("partials/_header", templateVars);
 });
 
@@ -69,7 +69,7 @@ app.get("/login", function (req, res){
 app.get("/urls/:id", function (req, res){
   let templateVars = { shortURL: req.params.id,
                       longURL: urlDatabase[req.params.id],
-                      username: req.cookies["cookies"]};
+                      usersObject: users };
   res.render("urls_show", templateVars);
 });
 
@@ -126,23 +126,32 @@ app.post("/logout", function (req, res){
 
 app.post("/register", function (req, res){
   // Error Handling
+  var passed = true;
+  let message = "";
   if(req.body.email == '' || req.body.password == ''){
-    res.status(400);
-    res.send("Oops! Something went wrong.");
-  }
-  else {
+    passed = false;
+    message = "ERROR: NO PASSWORD OR EMAIL ENTERED."
+  } else {
     for(var eachUser in users){
-      if(users[eachUser].email == req.body.email){
-        res.status(400);
-        res.send("Oops! Something went wrong.");
+        if(users[eachUser].email == req.body.email){
+          passed = false;
+          message = "ERROR: EMAIL ALREADY IN USE.";
+        }
       }
-    }
+  }
+
+  if(passed){
     let userId = generateRandomString();
     users[userId] = { id: userId, email:
                       req.body.email,
                       password: req.body.password };
     res.redirect("/register");
+
+  } else {
+    res.status(400);
+    res.send(message);
   }
+
 });
 
 // Even handler
