@@ -60,7 +60,9 @@ app.get("/urls/:id", function (req, res){
   res.render("urls_show", templateVars);
 });
 
-
+// This get method is for processing, it turns shortURL
+// generated and put them into database and redirect to
+// the longURL website
 app.get("/u/:shortURL", function (req, res){
   let longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
@@ -89,13 +91,15 @@ app.post("/urls/update/:id", function (req, res){
   res.redirect("/urls");
 });
 
-// This post handles user id input
+// This post handles user id input that store the id into
+// cookies
 app.post("/login", function (req, res){
-  //console.log(req.body === object);
   res.cookie("cookies", req.body['username']);
   res.redirect("/urls/b2xVn2");
 });
 
+// This post is for handling when user logout, and redirect
+// back to login back after user has logged out
 app.post("/logout", function (req, res){
   res.clearCookie("cookies");
   res.redirect("/login");
