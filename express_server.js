@@ -40,18 +40,21 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Default GET
-app.get("/", function (req, res){
-  res.redirect("/urls");
+app.get("/public", function (req, res){
+  let templateVars = {
+    urls: urlDatabase,
+    usersObject: undefined
+  }
+  res.render("urls_public", templateVars);
 });
 
 // Rendering the database page (urls_index.ejs) with current database
 app.get("/urls", function (req, res){
   var cookieID = req.cookies["cookies"];
   let currUserData = urlsForUser(cookieID);
-  console.log(currUserData);
   let templateVars = { urls: currUserData,
                       usersObject: users[cookieID],
-                      currLogIn: users[cookieID].email };
+                      currLogIn: users[cookieID] };
 
   res.render("urls_index", templateVars);
 });
@@ -63,7 +66,7 @@ app.get("/urls/new", function (req, res){
     res.redirect("/login");
    } else {
     let templateVars = { usersObject: users[cookieID],
-                        currLogIn: users[cookieID].email };
+                        currLogIn: users[cookieID] };
     res.render("urls_new", templateVars);
   }
 });
@@ -71,7 +74,7 @@ app.get("/urls/new", function (req, res){
 app.get("/login", function (req, res){
   let cookieID = req.cookies["cookies"];
   let templateVars = { usersObject: users[cookieID],
-                      currLogIn: users[cookieID].email };
+                      currLogIn: users[cookieID] };
   res.render("urls_login", templateVars);
 });
 
@@ -83,7 +86,7 @@ app.get("/urls/:id", function (req, res){
   let templateVars = { shortURL: req.params.id,
                       longURL: urlDatabase[req.params.id],
                       usersObject: users[cookieID],
-                      currLogIn: users[cookieID].email };
+                      currLogIn: users[cookieID] };
   res.render("urls_show", templateVars);
 });
 
@@ -100,7 +103,7 @@ app.get("/u/:shortURL", function (req, res){
 app.get("/register", function (req, res){
   let cookieID = req.cookies["cookies"];
   let templateVars = { usersObject: users[cookieID],
-                      currLogIn: users[cookieID].email };
+                      currLogIn: users[cookieID] };
   res.render("usr_register", templateVars);
 });
 
@@ -143,7 +146,7 @@ app.post("/login", function (req, res){
         ifExist = true;
         res.cookie("cookies", users[user].id);
 
-        res.redirect("/");
+        res.redirect("/urls");
       }
     }
   }
