@@ -48,9 +48,11 @@ app.get("/", function (req, res){
 app.get("/urls", function (req, res){
   var cookieID = req.cookies["cookies"];
   let currUserData = urlsForUser(cookieID);
-  let templateVars = { urls: urlDatabase,
+  console.log(currUserData);
+  let templateVars = { urls: currUserData,
                       usersObject: users[cookieID],
-                      currLogIn: cookieID };
+                      currLogIn: users[cookieID].email };
+
   res.render("urls_index", templateVars);
 });
 
@@ -61,7 +63,7 @@ app.get("/urls/new", function (req, res){
     res.redirect("/login");
    } else {
     let templateVars = { usersObject: users[cookieID],
-                        currLogIn: cookieID };
+                        currLogIn: users[cookieID].email };
     res.render("urls_new", templateVars);
   }
 });
@@ -69,7 +71,7 @@ app.get("/urls/new", function (req, res){
 app.get("/login", function (req, res){
   let cookieID = req.cookies["cookies"];
   let templateVars = { usersObject: users[cookieID],
-                      currLogIn: cookieID };
+                      currLogIn: users[cookieID].email };
   res.render("urls_login", templateVars);
 });
 
@@ -81,7 +83,7 @@ app.get("/urls/:id", function (req, res){
   let templateVars = { shortURL: req.params.id,
                       longURL: urlDatabase[req.params.id],
                       usersObject: users[cookieID],
-                      currLogIn: cookieID };
+                      currLogIn: users[cookieID].email };
   res.render("urls_show", templateVars);
 });
 
@@ -98,7 +100,7 @@ app.get("/u/:shortURL", function (req, res){
 app.get("/register", function (req, res){
   let cookieID = req.cookies["cookies"];
   let templateVars = { usersObject: users[cookieID],
-                      currLogIn: cookieID };
+                      currLogIn: users[cookieID].email };
   res.render("usr_register", templateVars);
 });
 
@@ -180,7 +182,8 @@ app.post("/register", function (req, res){
     users[userId] = { id: userId, email:
                       req.body.email,
                       password: req.body.password };
-    res.redirect("/login");
+    res.cookie("cookies", users[userId].id);
+    res.redirect("/urls");
 
   } else {
     res.status(400);
@@ -209,7 +212,7 @@ function urlsForUser(currID) {
   let matchingLinks = {}
   for(var url in urlDatabase){
     if(urlDatabase[url].userID === currID){
-      matchingLinks[urlDatabase[url]] = urlDatabase[url];
+      matchingLinks[url] = urlDatabase[url];
     }
   }
 
