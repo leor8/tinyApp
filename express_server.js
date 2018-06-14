@@ -9,7 +9,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
-const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
+const bcrypt = require("bcryptjs");
 const PORT = 8080;
 
 // variables
@@ -19,38 +20,38 @@ let uid = "";
 // Database will be updated if user add/update/delete any elements
 let urlDatabase = {
   "b2xVn2": {
-    url: "http://www.lighthouselabs.ca",
-    userID: "admin"},
+    url: "http://www.lighthouselabs.ca",},
   "9sm5xK": {
-    url: "http://www.google.com",
-    userID: "admin"}
+    url: "http://www.google.com",}
 };
 
 let users = {
-  "admin": {
-    id: "admin",
-    email: "leo442183205@gmail.com",
-    password: "123456"
-  }
 }
 
 // Setting ejs and bodyParser
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: "cookies",
+  keys: ["user_id"],
+}));
 
 // Default GET
 app.get("/public", function (req, res){
+  //var cookieID = req.cookies["cookies"];
+  var cookieID = req.session.user_id;
   let templateVars = {
     urls: urlDatabase,
-    usersObject: undefined
+    usersObject: users[cookieID],
+    currLogIn: users[cookieID]
   }
   res.render("urls_public", templateVars);
 });
 
 // Rendering the database page (urls_index.ejs) with current database
 app.get("/urls", function (req, res){
-  var cookieID = req.cookies["cookies"];
+  //var cookieID = req.cookies["cookies"];
+  var cookieID = req.session.user_id;
   let currUserData = urlsForUser(cookieID);
   let templateVars = { urls: currUserData,
                       usersObject: users[cookieID],
@@ -61,7 +62,8 @@ app.get("/urls", function (req, res){
 
 // Rendering the page getting new url from user via input field
 app.get("/urls/new", function (req, res){
-  let cookieID = req.cookies["cookies"];
+  //let cookieID = req.cookies["cookies"];
+  var cookieID = req.session.user_id;
   if(!cookieID){
     res.redirect("/login");
    } else {
@@ -72,7 +74,8 @@ app.get("/urls/new", function (req, res){
 });
 
 app.get("/login", function (req, res){
-  let cookieID = req.cookies["cookies"];
+  //let cookieID = req.cookies["cookies"];
+  var cookieID = req.session.user_id;
   let templateVars = { usersObject: users[cookieID],
                       currLogIn: users[cookieID] };
   res.render("urls_login", templateVars);
@@ -82,7 +85,8 @@ app.get("/login", function (req, res){
 // the correspondant hyperlink to the URL. Accessing this page from
 // urls_index's edit link
 app.get("/urls/:id", function (req, res){
-  let cookieID = req.cookies["cookies"];
+  //let cookieID = req.cookies["cookies"];
+  var cookieID = req.session.user_id;
   let templateVars = { shortURL: req.params.id,
                       longURL: urlDatabase[req.params.id],
                       usersObject: users[cookieID],
@@ -101,7 +105,8 @@ app.get("/u/:shortURL", function (req, res){
 // This get method returns a page with a form with emal
 // and password
 app.get("/register", function (req, res){
-  let cookieID = req.cookies["cookies"];
+  //let cookieID = req.cookies["cookies"];
+  var cookieID = req.session.user_id;
   let templateVars = { usersObject: users[cookieID],
                       currLogIn: users[cookieID] };
   res.render("usr_register", templateVars);
@@ -114,14 +119,16 @@ app.post("/urls", function (req, res){
   uid = generateRandomString();
   urlDatabase[uid] = {};
   urlDatabase[uid].url = req.body.longURL;
-  urlDatabase[uid].userID = req.cookies["cookies"];
+  //urlDatabase[uid].userID = req.cookies["cookies"];
+  urlDatabase[uid].userID = req.session.user_id;
   res.redirect("/urls");
 });
 
 // Updated from database page if user hit delete and redirect back
 // to database page with updated database
 app.post("/urls/:id/delete", function (req, res){
-  if(urlDatabase[req.params.id].userID == req.cookies["cookies"]){
+  console.log(req.params.id);
+  if(urlDatabase[req.params.id].userID == req.session.user_id){
     delete urlDatabase[req.params.id];
   }
   res.redirect("/urls");
@@ -130,7 +137,7 @@ app.post("/urls/:id/delete", function (req, res){
 // If user requested changed the link paired with id and update in
 // database and redirect back to database page with updated database
 app.post("/urls/update/:id", function (req, res){
-  if(urlDatabase[req.params.id].userID == req.cookies["cookies"]){
+  if(urlDatabase[req.params.id].userID == req.session.user_id){
     urlDatabase[req.params.id].url = req.body.longURL;
   }
   res.redirect("/urls");
@@ -142,9 +149,10 @@ app.post("/login", function (req, res){
   var ifExist = false;
   for(var user in users){
     if(req.body.email == users[user].email){
-      if(req.body.password == users[user].password){
+      if(bcrypt.compareSync(req.body.password, users[user].password)){
         ifExist = true;
-        res.cookie("cookies", users[user].id);
+        //res.cookie("cookies", users[user].id);
+        req.session.user_id = users[user].id;
 
         res.redirect("/urls");
       }
@@ -160,7 +168,7 @@ app.post("/login", function (req, res){
 // This post is for handling when user logout, and redirect
 // back to login back after user has logged out
 app.post("/logout", function (req, res){
-  res.clearCookie("cookies");
+  req.session = null
   res.redirect("/login");
 });
 
@@ -182,10 +190,12 @@ app.post("/register", function (req, res){
 
   if(passed){
     let userId = generateRandomString();
+    let updatedPassword = bcrypt.hashSync(req.body.password, 10);
     users[userId] = { id: userId, email:
                       req.body.email,
-                      password: req.body.password };
-    res.cookie("cookies", users[userId].id);
+                      password: updatedPassword };
+    //res.cookie("cookies", users[userId].id);
+    req.session.user_id = users[userId].id;
     res.redirect("/urls");
 
   } else {
