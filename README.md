@@ -1,4 +1,4 @@
-# Shortening longer URL
+# Tiny App
 
 ## Description
 
