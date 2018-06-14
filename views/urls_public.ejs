@@ -14,7 +14,7 @@
     <h2> Shorten Links </h2>
       <% for(var i in urls){ %>
         <form method="POST" action="/urls/<%=i%>/delete">
-          <p><%= [i] %> --> <a href="<%= urls[i] %>"><%= urls[i].url %></a></p>
+          <p><%= [i] %> --> <a href="<%= urls[i].url %>"><%= urls[i].url %></a></p>
         </form>
       <% } %>
   </body>

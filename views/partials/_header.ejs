@@ -13,7 +13,7 @@
   </div>
 <% } else { %>
   <form action="/logout" method="POST">
-    <%- currLogIn.email %>
+    <%- usersObject.email %>
     <input type="submit" value="Log out">
   </form>
 <% } %>

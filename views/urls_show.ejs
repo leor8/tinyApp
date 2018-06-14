@@ -3,7 +3,7 @@
   <head></head>
   <body>
     <% include partials/_header %>
-    <div style="font-size:20px; padding:50px;">
+    <div>
       <form action="/urls/update/<%= shortURL %>" method="POST" style="margin:150px;">
         <label for="longURL">ShortURL: <%= shortURL %></br></label>
         <input id="longURL" type="text" name="longURL" placeholder="<%= longURL.url %>" style="width: 300px">
