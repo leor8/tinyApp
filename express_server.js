@@ -18,22 +18,17 @@ let uid = "";
 // Database for saving all unique id with the corresponding link
 // Database will be updated if user add/update/delete any elements
 let urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    url: "http://www.lighthouselabs.ca",
+    userID: "admin"},
+  "9sm5xK": {
+    url: "http://www.google.com",
+    userID: "admin"}
 };
 
 let users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  },
-  "leor": {
+  "admin": {
+    id: "admin",
     email: "leo442183205@gmail.com",
     password: "123456"
   }
@@ -46,24 +41,35 @@ app.use(cookieParser());
 
 // Default GET
 app.get("/", function (req, res){
-  res.end("HOME");
+  res.redirect("/urls");
 });
 
 // Rendering the database page (urls_index.ejs) with current database
 app.get("/urls", function (req, res){
+  var cookieID = req.cookies["cookies"];
+  let currUserData = urlsForUser(cookieID);
   let templateVars = { urls: urlDatabase,
-                      usersObject: users};
+                      usersObject: users[cookieID],
+                      currLogIn: cookieID };
   res.render("urls_index", templateVars);
 });
 
 // Rendering the page getting new url from user via input field
 app.get("/urls/new", function (req, res){
-  let templateVars = { usersObject: users };
-  res.render("urls_new", templateVars);
+  let cookieID = req.cookies["cookies"];
+  if(!cookieID){
+    res.redirect("/login");
+   } else {
+    let templateVars = { usersObject: users[cookieID],
+                        currLogIn: cookieID };
+    res.render("urls_new", templateVars);
+  }
 });
 
 app.get("/login", function (req, res){
-  let templateVars = { usersObject: users };
+  let cookieID = req.cookies["cookies"];
+  let templateVars = { usersObject: users[cookieID],
+                      currLogIn: cookieID };
   res.render("urls_login", templateVars);
 });
 
@@ -71,9 +77,11 @@ app.get("/login", function (req, res){
 // the correspondant hyperlink to the URL. Accessing this page from
 // urls_index's edit link
 app.get("/urls/:id", function (req, res){
+  let cookieID = req.cookies["cookies"];
   let templateVars = { shortURL: req.params.id,
                       longURL: urlDatabase[req.params.id],
-                      usersObject: users };
+                      usersObject: users[cookieID],
+                      currLogIn: cookieID };
   res.render("urls_show", templateVars);
 });
 
@@ -88,7 +96,10 @@ app.get("/u/:shortURL", function (req, res){
 // This get method returns a page with a form with emal
 // and password
 app.get("/register", function (req, res){
-  res.render("usr_register");
+  let cookieID = req.cookies["cookies"];
+  let templateVars = { usersObject: users[cookieID],
+                      currLogIn: cookieID };
+  res.render("usr_register", templateVars);
 });
 
 // post url received from /urls/new and redirect to that webpage
@@ -96,21 +107,27 @@ app.get("/register", function (req, res){
 // and save it in the database
 app.post("/urls", function (req, res){
   uid = generateRandomString();
-  urlDatabase[uid] = req.body.longURL;
-  res.redirect(`u/${uid}`);
+  urlDatabase[uid] = {};
+  urlDatabase[uid].url = req.body.longURL;
+  urlDatabase[uid].userID = req.cookies["cookies"];
+  res.redirect("/urls");
 });
 
 // Updated from database page if user hit delete and redirect back
 // to database page with updated database
 app.post("/urls/:id/delete", function (req, res){
-  delete urlDatabase[req.params.id];
+  if(urlDatabase[req.params.id].userID == req.cookies["cookies"]){
+    delete urlDatabase[req.params.id];
+  }
   res.redirect("/urls");
 });
 
 // If user requested changed the link paired with id and update in
 // database and redirect back to database page with updated database
 app.post("/urls/update/:id", function (req, res){
-  urlDatabase[req.params.id] = req.body.longURL;
+  if(urlDatabase[req.params.id].userID == req.cookies["cookies"]){
+    urlDatabase[req.params.id].url = req.body.longURL;
+  }
   res.redirect("/urls");
 });
 
@@ -123,7 +140,8 @@ app.post("/login", function (req, res){
       if(req.body.password == users[user].password){
         ifExist = true;
         res.cookie("cookies", users[user].id);
-        res.redirect("/urls");
+
+        res.redirect("/");
       }
     }
   }
@@ -185,6 +203,17 @@ app.listen(PORT, function (){
 function generateRandomString(){
   // this function returns a random 6 digits string with random number + a to z
   return Math.random().toString(36).substring(6);
+}
+
+function urlsForUser(currID) {
+  let matchingLinks = {}
+  for(var url in urlDatabase){
+    if(urlDatabase[url].userID === currID){
+      matchingLinks[urlDatabase[url]] = urlDatabase[url];
+    }
+  }
+
+  return matchingLinks;
 }
 
 

@@ -1,10 +1,16 @@
-
-    <div style="font-size:20px; float: right;">
-      <div>
-        <a href="/login">Log in</a>
-      </div>
-
-      <div>
-        <a href="/register">Register</a>
-      </div>
+<% if (!usersObject){ %>
+  <div style="font-size:20px; float: right;">
+    <div>
+      <a href="/login">Log in</a>
     </div>
+
+    <div>
+      <a href="/register">Register</a>
+    </div>
+  </div>
+<% } else { %>
+  <form action="/logout" method="POST">
+    <%- usersObject.email %>
+    <input type="submit" value="Log out">
+  </form>
+<% } %>
