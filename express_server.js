@@ -38,7 +38,13 @@ let urlDatabase = {
   }
 };
 
-let users = {};
+let users = {
+  "admin": {
+    id: "admin",
+    email: "leo442183205@gmail.com",
+    password: bcrypt.hashSync("123456", 10)
+  }
+};
 /*
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   This is the start for all GET requests.
@@ -116,12 +122,9 @@ app.get("/urls/:id", function(req, res) {
 // generated and put them into database and redirect to
 // the longURL website
 app.get("/u/:shortURL", function(req, res) {
-  if (!req.session.user_id) {
-    res.redirect("/login");
-  } else {
-    let longURL = urlDatabase[req.params.shortURL];
-    res.redirect(longURL);
-  }
+  let longURL = urlDatabase[req.params.shortURL];
+  console.log(longURL, req.params.shortURL);
+  res.redirect(longURL.url);
 });
 
 // This get method returns a page with a form with emal
@@ -154,7 +157,7 @@ app.post("/urls", function(req, res) {
   uid = helpers.generateRandomString();
   urlDatabase[uid] = {
     url: req.body.longURL,
-    userID: req.session.user_id
+    userID: req.session.user_id,
   };
   res.redirect("/urls");
 });
