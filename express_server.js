@@ -13,7 +13,19 @@ const bodyParser = require("body-parser");
 const app = express();
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
+const helpers = require("./helperFunctions.js");
 const PORT = 8080;
+
+// Setting ejs and bodyParser
+app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+app.use(cookieSession({
+  name: "cookies",
+  keys: ["user_id"]
+}));
+//app.use("X-HTTP-Method-Override");
 
 // Database for saving all unique id with the corresponding link
 // Database will be updated if user add/update/delete any elements
@@ -27,17 +39,6 @@ let urlDatabase = {
 };
 
 let users = {};
-
-// Setting ejs and bodyParser
-app.set("view engine", "ejs");
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
-app.use(cookieSession({
-  name: "cookies",
-  keys: ["user_id"]
-}));
-
 /*
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   This is the start for all GET requests.
@@ -63,7 +64,7 @@ app.get("/urls", function(req, res) {
   if (!cookieID) { // if user is not logged in, will be redirect to login page
     res.redirect("/login");
   } else {
-    let currUserData = urlsForUser(cookieID);
+    let currUserData = helpers.urlsForUser(cookieID, urlDatabase);
     let templateVars = {
       urls: currUserData,
       usersObject: users[cookieID]
@@ -150,17 +151,18 @@ app.get("/register", function(req, res) {
 // and save it in the database
 app.post("/urls", function(req, res) {
   let uid = "";
-  uid = generateRandomString();
-  urlDatabase[uid] = {};
-  urlDatabase[uid].url = req.body.longURL;
-  urlDatabase[uid].userID = req.session.user_id;
+  uid = helpers.generateRandomString();
+  urlDatabase[uid] = {
+    url: req.body.longURL,
+    userID: req.session.user_id
+  };
   res.redirect("/urls");
 });
 
 // Updated from database page if user hit delete and redirect back
 // to database page with updated database
 app.post("/urls/:id/delete", function(req, res) {
-  if (urlDatabase[req.params.id].userID == req.session.user_id) {
+  if (urlDatabase[req.params.id].userID === req.session.user_id) {
     delete urlDatabase[req.params.id];
   }
   res.redirect("/urls");
@@ -169,7 +171,7 @@ app.post("/urls/:id/delete", function(req, res) {
 // If user requested changed the link paired with id and update in
 // database and redirect back to database page with updated database
 app.post("/urls/update/:id", function(req, res) {
-  if (urlDatabase[req.params.id].userID == req.session.user_id) {
+  if (urlDatabase[req.params.id].userID === req.session.user_id) {
     urlDatabase[req.params.id].url = req.body.longURL;
   }
   res.redirect("/urls");
@@ -181,11 +183,12 @@ app.post("/login", function(req, res) {
   /*
   helper function (register)
   */
-  if (loginCheck(req.body.password, req.body.email)) {
-    req.session.user_id = users[user].id;
+  let userId = helpers.loginCheck(req.body.password, req.body.email, users, bcrypt);
+  if (userId) {
+    req.session.user_id = userId;
     res.redirect("/urls");
   } else {
-    generateError(403, "Your email address or password does not match the record!", res);
+    helpers.generateError(403, "Your email address or password does not match the record!", res);
   }
 });
 
@@ -202,14 +205,14 @@ app.post("/logout", function(req, res) {
 app.post("/register", function(req, res) {
   // Error Handling
   let message = "";
-  if (isEmpty(req.body.email) || isEmpty(req.body.password)) {
+  if (helpers.isEmpty(req.body.email) || helpers.isEmpty(req.body.password)) {
     message = "ERROR: NO PASSWORD OR EMAIL ENTERED.";
-    generateError(400, message, res);
-  } else if (ifEmailExits(req.body.email)) {
+    helpers.generateError(400, message, res);
+  } else if (helpers.ifEmailExits(req.body.email, users)) {
     message = "ERROR: EMAIL ALREADY IN USE.";
-    generateError(400, message, res);
+    helpers.generateError(400, message, res);
   } else {
-    let userId = generateRandomString();
+    let userId = helpers.generateRandomString();
     let updatedPassword = bcrypt.hashSync(req.body.password, 10);
     users[userId] = {
       id: userId,
@@ -234,64 +237,3 @@ app.listen(PORT, function() {
 });
 
 
-/*
-  HELPER FUNCTIONS
-*/
-
-
-function generateRandomString() {
-  // this function returns a random 6 digits string with random number + a to z
-  return Math.random().toString(36).substring(6);
-}
-
-function urlsForUser(currID) {
-  // This function will go through all the datas in the urlDatabase
-  // and return an object with all the links that was created
-  // by currID, returns an empty object if none found
-  let matchingLinks = {};
-  for (let url in urlDatabase) {
-    if (urlDatabase[url].userID === currID) {
-      matchingLinks[url] = urlDatabase[url];
-    }
-  }
-
-  return matchingLinks;
-}
-
-function loginCheck(userPassword, userEmail) {
-  // This function checks the inputs from loging page if that
-  // matches with userdatabase, return true if found, false otherwise
-  for (var user in users) {
-    if (userEmail == users[user].email) {
-      if (bcrypt.compareSync(userPassword, users[user].password)) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-function isEmpty(aString) {
-  // This function checks if a string getting passed in is empty or
-  // not. Returns true if is empty
-  return aString === "";
-}
-
-function ifEmailExits(email) {
-  // This function checks if given email does already exist in
-  // the userdatabase. Returns true if it exits, false otherwise
-  for (var eachUser in users) {
-    if (users[eachUser].email === email) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-function generateError(errCode, errMessage, res) {
-  // This function will be called when the server will return an
-  // error, errCode will be specified with an error message.
-  res.status(errCode);
-  res.send(errMessage);
-}
