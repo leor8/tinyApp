@@ -4,6 +4,11 @@
 
 Tiny App is used for shortening longer URLs and manipulate those URLs
 
+## Screenshoots
+!["Screenshot of public page"](https://github.com/leor8/tinyApp/blob/master/docs/public-page.jpeg?raw=true)
+!["Screenshot of url page"](https://github.com/leor8/tinyApp/blob/master/docs/urls-page.jpeg)
+!["Screenshot of url/new page"](https://github.com/leor8/tinyApp/blob/master/docs/urls.new-page.jpeg?raw=true)
+
 ## Project rundown
 
 Starting with registering an account with your email and password, wihch upon complete will bring you to your interface. You can add/edit/delete ffrom your interface and simply use the logout button on the top left side to exit.
