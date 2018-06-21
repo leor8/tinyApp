@@ -53,6 +53,16 @@ let users = {
 // Public page where wether user logged in or not can all access
 // but no control over links will be granted. This .get request
 // will render urls_public
+
+// Default for redirecting to login page
+app.get("/", function (req, res) {
+  if(!req.session.user_id){
+    res.redirect("/login");
+  } else {
+    res.redirect("/urls");
+  }
+})
+
 app.get("/public", function(req, res) {
   let cookieID = req.session.user_id;
   let templateVars = {
@@ -123,7 +133,6 @@ app.get("/urls/:id", function(req, res) {
 // the longURL website
 app.get("/u/:shortURL", function(req, res) {
   let longURL = urlDatabase[req.params.shortURL];
-  console.log(longURL, req.params.shortURL);
   res.redirect(longURL.url);
 });
 
